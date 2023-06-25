@@ -30,6 +30,9 @@ export const config = {
 
 export const stackupProvider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
+
+
+
 // LIT action
 const publicKey = "0x0417be6edbb99eb833a048666e36a8311c349dc75b38fcd9f88ea8aed240b86acf8ea540853b2f7bb8a04e4855c7848af4bf2aa1a31f5cfe42255d17888de75356";
 const authSig = {
@@ -72,8 +75,6 @@ export const executeLitAction =
 
         ctx.op.paymasterAndData = PAYMASTER_ADDRESS.toLowerCase() + data.slice(2) + signature.slice(2);
     };
-
-
 
 // The code below is the LIT Action corresponding to ipfsId `QmSbNtFZnJuqUcEjR84H7bHGogjEcBuNvKqbD3XfSCALSB`
 // - url: https://explorer.litprotocol.com/actions/QmSbNtFZnJuqUcEjR84H7bHGogjEcBuNvKqbD3XfSCALSB

@@ -6,7 +6,7 @@ import { Signer, ethers } from "ethers";
 import { SimpleAccount } from "userop/dist/preset/builder";
 import { EOASignature, getGasPrice, estimateUserOperationGas } from "userop/dist/preset/middleware";
 
-import { ECO_TOKEN_ADDRESS, ENTRY_POINT_ADDRESS, SIMPLE_ACCOUNT_FACTORY_ADDRESS, verifyingPaymaster, ERC20_ABI, PAYMASTER_ADDRESS, stackupProvider, config } from "./paymaster";
+import { TOKEN_ADDRESS, ENTRY_POINT_ADDRESS, SIMPLE_ACCOUNT_FACTORY_ADDRESS, ERC20_ABI, PAYMASTER_ADDRESS, stackupProvider, config, executeLitAction } from "./paymaster";
 
 dotenvConfig();
 
@@ -57,8 +57,7 @@ const gaslessTransfer = async (signer: Signer, recipient: Signer) => {
     // init client
     const client = await Client.init(config.rpcUrl, config.entryPoint);
     
-    const result = await transfer(client, account, recipientAccount.getSender(), AMOUNT);
-    console.log("Result: ", result);
+    await transfer(client, account, recipientAccount.getSender(), AMOUNT);
    
   } catch (err) {
     console.log(err);
@@ -70,7 +69,6 @@ const gaslessTransfer = async (signer: Signer, recipient: Signer) => {
 
 // transfer to
 gaslessTransfer(testAccounts[0], testAccounts[1]);
-
 // transfer back
 // gaslessTransfer(testAccounts[1], testAccounts[0]);
 
@@ -79,7 +77,7 @@ gaslessTransfer(testAccounts[0], testAccounts[1]);
 const buildOps = async (simpleAccount: SimpleAccount, to: string, amount: ethers.BigNumber) => {
   if (!simpleAccount) return;
 
-  const erc20 = new ethers.Contract(ECO_TOKEN_ADDRESS, ERC20_ABI, stackupProvider);
+  const erc20 = new ethers.Contract(TOKEN_ADDRESS, ERC20_ABI, stackupProvider);
   const data = erc20.interface.encodeFunctionData("transfer", [to, amount]);
 
   const hasBeenDeployed = await hasWalletBeenDeployed(provider, simpleAccount.getSender());
@@ -102,7 +100,7 @@ const transfer = async (
   simpleAccount: SimpleAccount,
   to: string,
   amount: ethers.BigNumber
-): Promise<string> => {
+) => {
   if (!client || !simpleAccount) return "";
 
   await buildOps(simpleAccount, ethers.utils.getAddress(to), amount);
@@ -111,110 +109,24 @@ const transfer = async (
     .resetMiddleware()
     .useMiddleware((simpleAccount as any).resolveAccount)
     .useMiddleware(getGasPrice(stackupProvider))
-    .useMiddleware(verifyingPaymaster)
+    .useMiddleware(executeLitAction)
 
   const userOp = await client.buildUserOperation(simpleAccount)
   console.log(userOp);
 
+
+/*
   simpleAccount
     .useMiddleware(estimateUserOperationGas(stackupProvider))
-    .useMiddleware(verifyingPaymaster)
+    .useMiddleware(executeLitAction)
     .useMiddleware(EOASignature((simpleAccount as any).signer));
 
     const res = await client.sendUserOperation(simpleAccount);
     console.log("Waiting for transaction...");
     const ev = await res.wait();
     console.log(`Transaction hash: ${ev?.transactionHash ?? null}`);
-    return ev!.transactionHash;
+    */
 };
-  
-
-
-
-/*
-  const litActionCode = `
-const go = async () => { 
-  let toSign;
-
-  const url = "https://api.coingecko.com/api/v3/simple/price?ids=" + symbol + "&vs_currencies=eth";
-
-  try {
-    const opts = {
-      method: 'GET',
-      headers: {
-        mode: "no-cors",
-      },
-    };
-    const result = await fetch(url, opts).then(response => response.json());
-
-    const validAfter = Math.floor(Date.now() / 1000);
-    const validUntil = Math.floor(Date.now() / 1000) + 60 * 10;
-
-    const data = ethers.utils.defaultAbiCoder.encode(
-      ["uint48", "uint48", "address", "uint256"],
-      [validUntil, validAfter, tokenAddress, result],
-    );
-
-    const hash = await paymaster.getHash(
-      OpToJSON(ctx.op) as UserOperationStruct,
-      validUntil,
-      validAfter,
-      tokenAddress,
-      result,
-    );
-
-    toSign = { response: result };
-
-    const sigShare = await LitActions.signEcdsa({ toSign, publicKey , sigName });
-
-    LitActions.setResponse({ response: {
-      hash: hash,
-      data: data,
-     }});
-
-     
-  } catch (e) {
-    console.log(e);
-  }
-
-};
-
-go();
-`;
-
-export const runLitAction = async (userOps: any, paymaster: any) => {
-  const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain: "mumbai" });
-
-  const litNodeClient = new LitJsSdk.LitNodeClient({
-    alertWhenUnauthorized: false,
-    litNetwork: "serrano",
-    debug: true,
-  });
-
-  await litNodeClient.connect();
-  const { response } = await litNodeClient.executeJs({
-    code: litActionCode,
-    authSig,
-    // all jsParams can be used anywhere in your litActionCode
-    jsParams: {
-      publicKey:
-        "0x0417be6edbb99eb833a048666e36a8311c349dc75b38fcd9f88ea8aed240b86acf8ea540853b2f7bb8a04e4855c7848af4bf2aa1a31f5cfe42255d17888de75356",
-      sigName: "sig1",
-      token: "vix",
-      tokenAddress: "test-address",
-      paymasterAddress: "verifying-paymaster-address",
-      symbol: "ape",
-      userOps: userOps,
-      paymaster: paymaster,
-    },
-  });
-  console.log(response);
-
-  // return reponse hash
-  return response;
-};
-
-*/
 
 export async function hasWalletBeenDeployed(
     provider: ethers.providers.JsonRpcProvider,

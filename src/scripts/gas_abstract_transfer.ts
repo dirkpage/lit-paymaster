@@ -1,24 +1,23 @@
 
+import { config as dotenvConfig } from "dotenv";
+
 import { Client, Presets, UserOperationMiddlewareFn } from "userop";
 import { Signer, ethers } from "ethers";
 import { SimpleAccount } from "userop/dist/preset/builder";
-import { EOASignature, getGasPrice } from "userop/dist/preset/middleware";
-
-import * as LitJsSdk from "@lit-protocol/lit-node-client";
-
-import { estimateUserOperationGas } from "userop/dist/preset/middleware/gasLimit";
+import { EOASignature, getGasPrice, estimateUserOperationGas } from "userop/dist/preset/middleware";
 
 import { ECO_TOKEN_ADDRESS, ENTRY_POINT_ADDRESS, SIMPLE_ACCOUNT_FACTORY_ADDRESS, verifyingPaymaster, ERC20_ABI, PAYMASTER_ADDRESS, stackupProvider, config } from "./paymaster";
 
-const PRIVATE_KEY_1 = "c67e24893e406cb63d9b3291db2f6151587e3dbf0b62c121d776425e071e6254";
-const PRIVATE_KEY_2 = "e851bd0b03288a8135a67c0d69ce191860728f4a5d239df72bcaeaf0c761fe32";
+dotenvConfig();
 
-const AMOUNT = ethers.utils.parseEther("10");
+const PRIVATE_KEY_1 = process.env.PRIVATE_KEY_1!;
+const PRIVATE_KEY_2 = process.env.PRIVATE_KEY_2!;
+
+const AMOUNT = ethers.utils.parseEther("5");
 
 /**
  * construct a wallet and send a simple transaction
  */
-
 
 const provider = stackupProvider;
 
@@ -53,11 +52,12 @@ const gaslessTransfer = async (signer: Signer, recipient: Signer) => {
   try {
 
     const account = await getSimpleAccount(signer, provider);
+    const recipientAccount = await getSimpleAccount(recipient, provider);
 
     // init client
     const client = await Client.init(config.rpcUrl, config.entryPoint);
     
-    const result = await transfer(client, account, await recipient.getAddress(), AMOUNT);
+    const result = await transfer(client, account, recipientAccount.getSender(), AMOUNT);
     console.log("Result: ", result);
    
   } catch (err) {
@@ -79,25 +79,22 @@ gaslessTransfer(testAccounts[0], testAccounts[1]);
 const buildOps = async (simpleAccount: SimpleAccount, to: string, amount: ethers.BigNumber) => {
   if (!simpleAccount) return;
 
-  const erc20 = new ethers.Contract(ECO_TOKEN_ADDRESS, ERC20_ABI, provider);
+  const erc20 = new ethers.Contract(ECO_TOKEN_ADDRESS, ERC20_ABI, stackupProvider);
   const data = erc20.interface.encodeFunctionData("transfer", [to, amount]);
 
-  console.log("Approving");
-  /*
   const hasBeenDeployed = await hasWalletBeenDeployed(provider, simpleAccount.getSender());
   if (hasBeenDeployed) {
     simpleAccount.executeBatch([erc20.address], [data]);
   } else {
-    */
     // Execute transaction and approve Paymaster to spend tokens to pay gas fees in ECO tokens
     simpleAccount.executeBatch(
       [erc20.address, erc20.address],
       [
-        data,
         erc20.interface.encodeFunctionData("approve", [PAYMASTER_ADDRESS, ethers.constants.MaxUint256]),
+        data
       ],
     );
-  //}
+  }
 };
 
 const transfer = async (
@@ -116,20 +113,25 @@ const transfer = async (
     .useMiddleware(getGasPrice(stackupProvider))
     .useMiddleware(verifyingPaymaster)
 
-  console.log("Approved", await client.buildUserOperation(simpleAccount));
+  const userOp = await client.buildUserOperation(simpleAccount)
+  console.log(userOp);
 
   simpleAccount
     .useMiddleware(estimateUserOperationGas(stackupProvider))
     .useMiddleware(verifyingPaymaster)
     .useMiddleware(EOASignature((simpleAccount as any).signer));
 
-  const res = await client.sendUserOperation(simpleAccount);
-  console.log("Waiting for transaction...");
-  const ev = await res.wait();
-  console.log(`Transaction hash: ${ev?.transactionHash ?? null}`);
-  return ev!.transactionHash;
+    const res = await client.sendUserOperation(simpleAccount);
+    console.log("Waiting for transaction...");
+    const ev = await res.wait();
+    console.log(`Transaction hash: ${ev?.transactionHash ?? null}`);
+    return ev!.transactionHash;
 };
   
+
+
+
+/*
   const litActionCode = `
 const go = async () => { 
   let toSign;
@@ -212,6 +214,8 @@ export const runLitAction = async (userOps: any, paymaster: any) => {
   return response;
 };
 
+*/
+
 export async function hasWalletBeenDeployed(
     provider: ethers.providers.JsonRpcProvider,
     address: string,
@@ -224,4 +228,3 @@ export async function hasWalletBeenDeployed(
     }
     return false;
   }
-  

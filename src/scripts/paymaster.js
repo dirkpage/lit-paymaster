@@ -1,14 +1,20 @@
+import { config as dotenvConfig } from "dotenv";
+
 import { ethers } from "ethers";
 import { OpToJSON } from "userop/dist/utils";
 
-export const STACKUP_API_KEY = "3bf77b3f42c7032f4df8cf35b8bd0e060aaf657d78f4fd99313d4869a31f53c5";
+import * as LitNodeClient from "@lit-protocol/lit-node-client";
+
+dotenvConfig();
+
+export const STACKUP_API_KEY = "db6d5e9f61f03560c7d10299f772d8f71396fe840034c111a7f5f3752bc5db9d";
 
 export const ENTRY_POINT_ADDRESS = "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789";
 export const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454";
 export const PAYMASTER_ADDRESS = "0xe459a01E604497C879E77e5203b3fFFc335BdeA0";
 export const ECO_TOKEN_ADDRESS = "0x54bBECeA38ff36D32323f8A754683C1F5433A89f";
 export const FLAT_FEE_AMOUNT = ethers.utils.parseEther("0.42");
-export const signingWallet = new ethers.Wallet("2910918b271e9111f8679618ce523792600eb37f6440ec4efe6512dd12455b82");
+export const signingWallet = new ethers.Wallet(process.env.PRIVATE_KEY_SIGNER);
 
 export const config = {
     rpcUrl: `https://api.stackup.sh/v1/node/${STACKUP_API_KEY}`, // TODO change this to our bundler endpoint
@@ -48,7 +54,7 @@ export const verifyingPaymaster = async ctx => {
     userOp.paymasterAndData = PAYMASTER_ADDRESS + data.slice(2) + signature.slice(2);
   };
   
-  export const PAYMASTER_ABI = [
+export const PAYMASTER_ABI = [
     {
       inputs: [
         {
@@ -148,7 +154,7 @@ export const verifyingPaymaster = async ctx => {
   ];
 
 
-  export const ERC20_ABI = [
+export const ERC20_ABI = [
     {
         "constant": true,
         "inputs": [],

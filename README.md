@@ -1,6 +1,6 @@
 # Lit Paymaster
 
-This project contains a script that generates and signs a user operation using a lit action on optimism mainnet.
+This project showcases how to use a Verifying Paymaster that has Lit PKP as the owner. We use Lit actions to fetch the exchange price and sign a user operation using lit action on optimism mainnet. The project can be extended to create a wallet that allows paying fees in any erc20 token that is on coingecko on any chain supported by the Lit Network. Or it can be integrated to any existing Smart Wallet Account. 
 
 ## Prerequisites
 This project requries the following CLI packages:

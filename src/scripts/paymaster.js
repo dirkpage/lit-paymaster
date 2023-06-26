@@ -11,8 +11,8 @@ export const STACKUP_API_KEY = process.env.STACKUP_API_KEY;
 
 export const ENTRY_POINT_ADDRESS = "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789";
 export const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454";
-export const PAYMASTER_ADDRESS = "0x22E993D9108DbDe9F32553C3fD0A404aCD2B7150";
-export const TOKEN_ADDRESS = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+export const PAYMASTER_ADDRESS = "0x2A3BE34702B9d4dC3CC38a3Eb4A79cBcA4F665DB"; // optimism 0x22E993D9108DbDe9F32553C3fD0A404aCD2B7150
+export const TOKEN_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // optimism 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
 export const FLAT_FEE_AMOUNT = ethers.utils.parseEther("0.42");
 export const signingWallet = new ethers.Wallet(process.env.PRIVATE_KEY_SIGNER);
 
@@ -57,7 +57,7 @@ export const executeLitAction =
         const validUntil = Math.floor(Date.now() / 1000) + 60 * 10;
 
         const {response, signatures} = await litNodeClient.executeJs({
-            ipfsId: "QmSbNtFZnJuqUcEjR84H7bHGogjEcBuNvKqbD3XfSCALSB",
+            ipfsId: "Qmd9ayeHb8FipvFDSAzZ9pYZgcaZ8p6QSeaZbL1Be9sxmH",
             authSig,
             jsParams: {
                 sigName: "sig1",
@@ -76,82 +76,81 @@ export const executeLitAction =
         ctx.op.paymasterAndData = PAYMASTER_ADDRESS.toLowerCase() + data.slice(2) + signature.slice(2);
     };
 
-// The code below is the LIT Action corresponding to ipfsId `QmSbNtFZnJuqUcEjR84H7bHGogjEcBuNvKqbD3XfSCALSB`
-// - url: https://explorer.litprotocol.com/actions/QmSbNtFZnJuqUcEjR84H7bHGogjEcBuNvKqbD3XfSCALSB
-// const chain = "optimistic-ethereum";
-// const PAYMASTER_ABI = [
-//   {
-//     inputs: [
-//       {
-//         components: [
-//           { internalType: "address", name: "sender", type: "address" },
-//           { internalType: "uint256", name: "nonce", type: "uint256" },
-//           { internalType: "bytes", name: "initCode", type: "bytes" },
-//           { internalType: "bytes", name: "callData", type: "bytes" },
-//           { internalType: "uint256", name: "callGasLimit", type: "uint256" },
-//           { internalType: "uint256", name: "verificationGasLimit", type: "uint256" },
-//           { internalType: "uint256", name: "preVerificationGas", type: "uint256" },
-//           { internalType: "uint256", name: "maxFeePerGas", type: "uint256" },
-//           { internalType: "uint256", name: "maxPriorityFeePerGas", type: "uint256" },
-//           { internalType: "bytes", name: "paymasterAndData", type: "bytes" },
-//           { internalType: "bytes", name: "signature", type: "bytes" },
-//         ],
-//         internalType: "struct UserOperation",
-//         name: "userOp",
-//         type: "tuple",
-//       },
-//       { internalType: "uint48", name: "validUntil", type: "uint48" },
-//       { internalType: "uint48", name: "validAfter", type: "uint48" },
-//       { internalType: "address", name: "erc20Token", type: "address" },
-//       { internalType: "uint256", name: "tokenFee", type: "uint256" },
-//     ],
-//     name: "getHash",
-//     outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
-//     stateMutability: "view",
-//     type: "function",
-//   },
-// ];
-// const go = async () => {
-//   const url =
-//     "https://api.coingecko.com/api/v3/simple/token_price/" +
-//     chain +
-//     "?contract_addresses=" +
-//     tokenAddress +
-//     "&vs_currencies=eth";
-//   try {
-//     const opts = {
-//       method: "GET",
-//       headers: { mode: "no-cors" },
-//     };
-//     const result = await fetch(url, opts).then(response => response.json());
-//     const data = ethers.utils.defaultAbiCoder.encode(
-//       ["uint48", "uint48", "address", "uint256"],
-//       [validUntil, validAfter, tokenAddress, ethers.utils.parseEther(result[tokenAddress].eth.toString())],
-//     );
-//     const provider = new ethers.providers.JsonRpcProvider(
-//       "https://optimism-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-//       137,
-//     );
-//     const paymaster = new ethers.Contract(paymasterAddress, PAYMASTER_ABI, provider);
-//     const hash = await paymaster.getHash(
-//       JSON.parse(userOp),
-//       validUntil,
-//       validAfter,
-//       tokenAddress,
-//       ethers.utils.parseEther(result[tokenAddress].eth.toString()),
-//     );
-//     const sigShare = await LitActions.ethPersonalSignMessageEcdsa({ message: hash, publicKey, sigName });
-//     LitActions.setResponse({
-//       response: JSON.stringify({
-//         hash: hash,
-//         data: data,
-//       }),
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-// go();
+  // The code below is the LIT Action corresponding to ipfsId `Qmd9ayeHb8FipvFDSAzZ9pYZgcaZ8p6QSeaZbL1Be9sxmH`
+  // const chain = "polygon-pos";
+  // const PAYMASTER_ABI = [
+  //   {
+  //     inputs: [
+  //       {
+  //         components: [
+  //           { internalType: "address", name: "sender", type: "address" },
+  //           { internalType: "uint256", name: "nonce", type: "uint256" },
+  //           { internalType: "bytes", name: "initCode", type: "bytes" },
+  //           { internalType: "bytes", name: "callData", type: "bytes" },
+  //           { internalType: "uint256", name: "callGasLimit", type: "uint256" },
+  //           { internalType: "uint256", name: "verificationGasLimit", type: "uint256" },
+  //           { internalType: "uint256", name: "preVerificationGas", type: "uint256" },
+  //           { internalType: "uint256", name: "maxFeePerGas", type: "uint256" },
+  //           { internalType: "uint256", name: "maxPriorityFeePerGas", type: "uint256" },
+  //           { internalType: "bytes", name: "paymasterAndData", type: "bytes" },
+  //           { internalType: "bytes", name: "signature", type: "bytes" },
+  //         ],
+  //         internalType: "struct UserOperation",
+  //         name: "userOp",
+  //         type: "tuple",
+  //       },
+  //       { internalType: "uint48", name: "validUntil", type: "uint48" },
+  //       { internalType: "uint48", name: "validAfter", type: "uint48" },
+  //       { internalType: "address", name: "erc20Token", type: "address" },
+  //       { internalType: "uint256", name: "tokenFee", type: "uint256" },
+  //     ],
+  //     name: "getHash",
+  //     outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+  //     stateMutability: "view",
+  //     type: "function",
+  //   },
+  // ];
+  // const go = async () => {
+  //   const url =
+  //     "https://api.coingecko.com/api/v3/simple/token_price/" +
+  //     chain +
+  //     "?contract_addresses=" +
+  //     tokenAddress +
+  //     "&vs_currencies=eth";
+  //   try {
+  //     const opts = {
+  //       method: "GET",
+  //       headers: { mode: "no-cors" },
+  //     };
+  //     const result = await fetch(url, opts).then(response => response.json());
+  //     const data = ethers.utils.defaultAbiCoder.encode(
+  //       ["uint48", "uint48", "address", "uint256"],
+  //       [validUntil, validAfter, tokenAddress, ethers.utils.parseEther(result[tokenAddress].eth.toString())],
+  //     );
+  //     const provider = new ethers.providers.JsonRpcProvider(
+  //       "https://polygon-rpc.com",
+  //       137,
+  //     );
+  //     const paymaster = new ethers.Contract(paymasterAddress, PAYMASTER_ABI, provider);
+  //     const hash = await paymaster.getHash(
+  //       JSON.parse(userOp),
+  //       validUntil,
+  //       validAfter,
+  //       tokenAddress,
+  //       ethers.utils.parseEther(result[tokenAddress].eth.toString()),
+  //     );
+  //     const sigShare = await LitActions.ethPersonalSignMessageEcdsa({ message: hash, publicKey, sigName });
+  //     LitActions.setResponse({
+  //       response: JSON.stringify({
+  //         hash: hash,
+  //         data: data,
+  //       }),
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+  // go();
 
   
 export const PAYMASTER_ABI = [
